@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -83,8 +84,25 @@ public class RestTemplateService {
     }
 
     public List<ItemDto> exchangeCall(String token) {
+        // 요청 URL 만들기
+        URI uri = UriComponentsBuilder
+                .fromUriString("http://localhost:7070")
+                .path("/api/server/exchange-call")
+                .encode()
+                .build()
+                .toUri();
+        log.info("uri = " + uri);
 
-        return null;
+        User user = new User("Robbie", "1234");
+
+        RequestEntity<User> requestEntity = RequestEntity
+                .post(uri)
+                .header("X-Authorization", token)
+                .body(user);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
+
+        return fromJSONtoItems(responseEntity.getBody());
     }
     // 길게 배열형식(중첩 json형태) 일때 string으로 받아서
     // json 으로 변환해주는 라이브러리를 이용하여 변환을 한다.
